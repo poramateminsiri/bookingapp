@@ -1,0 +1,7 @@
+{
+  "shopName": "ร้านตัวอย่าง",
+  "open": "09:00",
+  "close": "18:00",
+  "slotStepMinutes": 30,
+  "adminPasscode": "1234"
+}

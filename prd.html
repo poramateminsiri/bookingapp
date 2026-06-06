@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PRD — แอพนัดหมายรับบริการ</title>
+<style>
+  :root {
+    --bg: #f4f6fb; --card: #fff; --ink: #1f2937; --muted: #6b7280;
+    --line: #e5e7eb; --brand: #2563eb; --brand-dark: #1d4ed8;
+    --ok: #059669; --danger: #dc2626; --amber: #d97706; --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "Sarabun", -apple-system, "Segoe UI", sans-serif; line-height: 1.65;
+  }
+  a { color: var(--brand); }
+
+  /* Layout */
+  .wrap { display: grid; grid-template-columns: 250px 1fr; max-width: 1180px; margin: 0 auto; gap: 28px; padding: 0 20px; }
+  @media (max-width: 880px) { .wrap { grid-template-columns: 1fr; } nav.toc { display: none; } }
+
+  header.hero {
+    background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+    color: #fff; padding: 40px 20px 48px; text-align: center;
+  }
+  header.hero h1 { margin: 0 0 8px; font-size: 1.9rem; }
+  header.hero .sub { opacity: .9; }
+  .pills { margin-top: 16px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .pill { background: rgba(255,255,255,.18); padding: 5px 13px; border-radius: 999px; font-size: .82rem; }
+
+  /* Progress */
+  .progress-bar { max-width: 1180px; margin: -24px auto 0; padding: 0 20px; }
+  .progress-inner {
+    background: var(--card); border-radius: var(--radius); padding: 14px 20px;
+    box-shadow: 0 6px 24px rgba(0,0,0,.08); display: flex; align-items: center; gap: 16px;
+  }
+  .track { flex: 1; height: 10px; background: var(--line); border-radius: 999px; overflow: hidden; }
+  .fill { height: 100%; width: 0; background: var(--ok); transition: width .25s; }
+  .progress-inner b { white-space: nowrap; }
+  .reset { font-size: .8rem; color: var(--muted); background: none; border: none; cursor: pointer; text-decoration: underline; }
+
+  /* TOC */
+  nav.toc { position: sticky; top: 20px; align-self: start; padding-top: 36px; }
+  nav.toc a { display: block; padding: 7px 12px; border-radius: 8px; color: var(--muted); text-decoration: none; font-size: .92rem; }
+  nav.toc a:hover { background: #eef2ff; color: var(--brand); }
+  nav.toc a.active { background: var(--brand); color: #fff; }
+
+  main { padding: 36px 0 80px; }
+  section { scroll-margin-top: 20px; }
+
+  details.card {
+    background: var(--card); border-radius: var(--radius); margin-bottom: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.05); overflow: hidden;
+  }
+  details.card > summary {
+    list-style: none; cursor: pointer; padding: 18px 22px; font-size: 1.15rem; font-weight: 700;
+    display: flex; align-items: center; gap: 10px; user-select: none;
+  }
+  details.card > summary::-webkit-details-marker { display: none; }
+  details.card > summary::before {
+    content: "▸"; color: var(--brand); transition: transform .2s; font-size: .9em;
+  }
+  details.card[open] > summary::before { transform: rotate(90deg); }
+  .card-body { padding: 0 22px 22px; }
+  .num { color: var(--muted); font-weight: 700; margin-right: 4px; }
+
+  h3 { margin: 22px 0 8px; font-size: 1.02rem; }
+  p, li { font-size: .96rem; }
+  code {
+    background: #eef2ff; color: var(--brand-dark); padding: 1px 6px; border-radius: 6px;
+    font-family: "SF Mono", ui-monospace, monospace; font-size: .88em;
+  }
+
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); font-size: .92rem; vertical-align: top; }
+  th { background: #f8fafc; font-weight: 700; }
+
+  /* User stories */
+  ul.stories { list-style: none; padding: 0; margin: 6px 0; }
+  ul.stories li {
+    display: flex; gap: 12px; align-items: flex-start; padding: 11px 14px;
+    border: 1px solid var(--line); border-radius: 10px; margin-bottom: 8px; background: #fff;
+    transition: background .15s, opacity .15s;
+  }
+  ul.stories li.done { background: #f0fdf4; border-color: #bbf7d0; }
+  ul.stories li.done .txt { text-decoration: line-through; opacity: .55; }
+  ul.stories input { margin-top: 4px; width: 18px; height: 18px; accent-color: var(--ok); cursor: pointer; flex: none; }
+  .txt { flex: 1; }
+  .actor { font-weight: 700; color: var(--brand-dark); }
+
+  .tag { display: inline-block; font-size: .72rem; font-weight: 700; padding: 2px 9px; border-radius: 999px; }
+  .tag.must { background: #eff6ff; color: var(--brand); }
+  .tag.scope { background: #fef2f2; color: var(--danger); }
+  .tag.test { background: #ecfdf5; color: var(--ok); }
+  .callout { border-left: 4px solid var(--amber); background: #fffbeb; padding: 12px 16px; border-radius: 8px; margin: 14px 0; }
+  .callout.brand { border-color: var(--brand); background: #eff6ff; }
+  ul.plain li { margin-bottom: 6px; }
+  .meta-foot { text-align: center; color: var(--muted); font-size: .85rem; padding: 30px; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <h1>📅 PRD — แอพนัดหมายรับบริการ</h1>
+  <div class="sub">ระบบให้ลูกค้านัดหมายเข้ารับบริการจากร้านผ่านหน้าเว็บ — ดัดแปลงจาก booking-template</div>
+  <div class="pills">
+    <span class="pill">Node.js ล้วน · ไม่มี dependency</span>
+    <span class="pill">คิวเดียวทั้งร้าน</span>
+    <span class="pill">ภาษาไทย</span>
+    <span class="pill">เก็บข้อมูล JSON</span>
+  </div>
+</header>
+
+<div class="progress-bar">
+  <div class="progress-inner">
+    <b>ความคืบหน้า User Stories</b>
+    <div class="track"><div class="fill" id="fill"></div></div>
+    <b id="pct">0%</b>
+    <button class="reset" id="reset">ล้างเครื่องหมาย</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <nav class="toc" id="toc">
+    <a href="#problem">1. ปัญหา</a>
+    <a href="#solution">2. แนวทางแก้</a>
+    <a href="#glossary">3. ศัพท์เฉพาะ</a>
+    <a href="#stories">4. User Stories</a>
+    <a href="#impl">5. การตัดสินใจเชิงเทคนิค</a>
+    <a href="#testing">6. การทดสอบ</a>
+    <a href="#scope">7. นอกขอบเขต</a>
+    <a href="#notes">8. หมายเหตุ</a>
+  </nav>
+
+  <main>
+    <!-- 1 -->
+    <section id="problem">
+      <details class="card" open>
+        <summary><span class="num">1.</span> Problem Statement — ปัญหา</summary>
+        <div class="card-body">
+          <p>ร้านบริการขนาดเล็ก (เช่น ร้านตัดผม ร้านนวด คลินิก) รับนัดลูกค้าผ่านโทรศัพท์หรือแชท ทำให้:</p>
+          <ul class="plain">
+            <li>🔁 <b>จองชนกัน</b> — รับสองนัดในเวลาเดียวกันโดยไม่รู้ตัว เพราะไม่มีที่บันทึกกลาง</li>
+            <li>⏰ <b>ลูกค้าไม่รู้เวลาว่าง</b> — ต้องถาม-ตอบไปมาว่าช่วงไหนยังจองได้</li>
+            <li>📒 <b>ไม่มีบันทึกที่ค้นได้</b> — ดูรายการนัดของวันนี้/ประวัติย้อนหลังลำบาก</li>
+          </ul>
+          <p>เจ้าของร้านอยากได้ที่เดียวที่ลูกค้ากดจองเองได้ และร้านเห็นนัดทั้งหมดในที่เดียว โดยระบบกันเวลาชนให้อัตโนมัติ</p>
+        </div>
+      </details>
+    </section>
+
+    <!-- 2 -->
+    <section id="solution">
+      <details class="card" open>
+        <summary><span class="num">2.</span> Solution — แนวทางแก้</summary>
+        <div class="card-body">
+          <p>เว็บแอปภาษาไทย 2 หน้า:</p>
+          <ul class="plain">
+            <li>🧑‍💻 <b>หน้าลูกค้า (public)</b> — เลือก<b>บริการ</b> เลือกวัน ระบบแสดงเฉพาะ<b>ช่องเวลาว่าง</b> กรอกชื่อ+เบอร์ แล้วยืนยัน<b>นัดหมาย</b></li>
+            <li>🛠️ <b>หน้าจัดการร้าน (<code>/admin</code>)</b> — ใส่รหัสผ่าน ดูรายการนัดของแต่ละวัน และยกเลิกนัดได้</li>
+          </ul>
+          <p>กฎเดียวที่บังคับ: <b>คิวเดียวทั้งร้าน</b> — ทั้งร้านรับได้ทีละ 1 นัดต่อช่วงเวลา ระบบปฏิเสธการจองที่เวลาทับกับนัดที่<b>ยืนยันแล้ว</b> เวลาจบของนัดคำนวณอัตโนมัติจากระยะเวลาของบริการ</p>
+          <div class="callout brand">💡 ตรรกะหลัก (กฎทับซ้อน, เก็บ JSON, สถานะ) reuse จาก booking-template เดิม แต่เปลี่ยนหน้าตาจาก CLI → เว็บ</div>
+        </div>
+      </details>
+    </section>
+
+    <!-- 3 -->
+    <section id="glossary">
+      <details class="card">
+        <summary><span class="num">3.</span> ศัพท์เฉพาะของโดเมน (Glossary)</summary>
+        <div class="card-body">
+          <table>
+            <tr><th>คำ</th><th>ความหมาย</th><th>เลี่ยง</th></tr>
+            <tr><td><b>นัดหมาย</b></td><td>ลูกค้าหนึ่งคนจองช่วงเวลาเพื่อรับบริการหนึ่งอย่าง</td><td>การจอง, booking</td></tr>
+            <tr><td><b>ลูกค้า</b></td><td>ผู้ทำนัด ระบุด้วยชื่อ+เบอร์ ไม่มีบัญชี/login</td><td>ผู้จอง, user</td></tr>
+            <tr><td><b>บริการ</b></td><td>สิ่งที่ลูกค้ามารับ มีระยะเวลาประจำตัว</td><td>resource</td></tr>
+            <tr><td><b>คิว</b></td><td>ความสามารถรับนัดของทั้งร้าน — ทีละ 1 นัดต่อช่วงเวลา ไม่แยกพนักงาน</td><td>ทรัพยากร, ช่อง</td></tr>
+            <tr><td><b>เวลาทำการ</b></td><td>ช่วงที่ร้านเปิดรับนัด (ดีฟอลต์ 09:00–18:00)</td><td>working time</td></tr>
+            <tr><td><b>ช่องเวลาว่าง</b></td><td>เวลาเริ่มที่ยังจองได้ — อยู่ในเวลาทำการ และไม่ทำให้ชน</td><td>free time</td></tr>
+            <tr><td><b>สถานะ</b></td><td>ยืนยันแล้ว / ยกเลิก (เก็บประวัติไว้)</td><td>active/inactive</td></tr>
+          </table>
+          <p class="svc-meta">อ้างอิงจาก <code>CONTEXT.md</code> — เอกสารคำศัพท์ฉบับเต็มของโปรเจกต์</p>
+        </div>
+      </details>
+    </section>
+
+    <!-- 4 -->
+    <section id="stories">
+      <details class="card" open>
+        <summary><span class="num">4.</span> User Stories</summary>
+        <div class="card-body">
+          <p class="svc-meta">ติ๊กเพื่อทำเครื่องหมายเสร็จ — สถานะจะถูกบันทึกในเบราว์เซอร์</p>
+
+          <h3>ฝั่งลูกค้า</h3>
+          <ul class="stories" data-group="customer">
+            <li><input type="checkbox"><span class="txt"><span class="actor">ในฐานะลูกค้า</span> ฉันอยากเห็นรายการบริการพร้อมราคาและระยะเวลา เพื่อเลือกบริการที่ต้องการได้</span></li>
+            <li><input type="checkbox"><span class="txt"><span class="actor">ในฐานะลูกค้า</span> ฉันอยากเลือกวันที่ต้องการนัด เพื่อดูเวลาว่างของวันนั้น</span></li>
+            <li><input type="checkbox"><span class="txt"><span class="actor">ในฐานะลูกค้า</span> ฉันอยากเห็นเฉพาะ<b>ช่องเวลาว่าง</b>ที่จองได้จริง เพื่อไม่ต้องเดาว่าเวลาไหนเต็ม</span></li>
+            <li><input type="checkbox"><span class="txt"><span class="actor">ในฐานะลูกค้า</span> ฉันอยากให้เวลาจบคำนวณให้อัตโนมัติตามบริการ เพื่อไม่ต้องกรอกเวลาเลิกเอง</span></li>
+            <li><input type="checkbox"><span class="txt"><span class="actor">ในฐานะลูกค้า</span> ฉันอยากกรอกชื่อและเบอร์โทร เพื่อให้ร้านติดต่อกลับได้</span></li>
+            <li><input type="checkbox"><span class="txt"><span class="actor">ในฐานะลูกค้า</span> ฉันอยากใส่หมายเหตุเพิ่มเติม เพื่อแจ้งความต้องการพิเศษ</span></li>
+            <li><input type="checkbox"><span class="txt"><span class="actor">ในฐานะลูกค้า</span> ฉันอยากเห็นข้อความยืนยันเมื่อจองสำเร็จ เพื่อมั่นใจว่านัดถูกบันทึก</span></li>
+            <li><input type="checkbox"><span class="txt"><span class="actor">ในฐานะลูกค้า</span> ฉันอยากถูกปฏิเสธอย่างชัดเจนถ้าเวลาที่เลือกถูกจองไปก่อน เพื่อเลือกเวลาใหม่ได้ทันที</span></li>
+            <li><input type="checkbox"><span class="txt"><span class="actor">ในฐานะลูกค้า</span> ฉันไม่อยากจองเวลาที่ผ่านไปแล้ว เพื่อกันความผิดพลาด</span></li>
+          </ul>
+
+          <h3>ฝั่งร้าน (Admin)</h3>
+          <ul class="stories" data-group="admin">
+            <li><input type="checkbox"><span class="txt"><span class="actor">ในฐานะเจ้าของร้าน</span> ฉันอยากเข้าหน้าจัดการด้วยรหัสผ่าน เพื่อกันคนนอกเห็นข้อมูลลูกค้า</span></li>
+            <li><input type="checkbox"><span class="txt"><span class="actor">ในฐานะเจ้าของร้าน</span> ฉันอยากดูรายการนัดของวันที่เลือก เรียงตามเวลา เพื่อเตรียมงานล่วงหน้า</span></li>
+            <li><input type="checkbox"><span class="txt"><span class="actor">ในฐานะเจ้าของร้าน</span> ฉันอยากเห็นชื่อ เบอร์ บริการ และหมายเหตุของแต่ละนัด เพื่อให้บริการได้ถูกต้อง</span></li>
+            <li><input type="checkbox"><span class="txt"><span class="actor">ในฐานะเจ้าของร้าน</span> ฉันอยากยกเลิกนัดได้ เพื่อจัดการกรณีลูกค้าขอเลื่อน/ยกเลิก</span></li>
+            <li><input type="checkbox"><span class="txt"><span class="actor">ในฐานะเจ้าของร้าน</span> ฉันอยากให้นัดที่ยกเลิกถูกเก็บเป็นประวัติ (ไม่ลบทิ้ง) เพื่อตรวจสอบย้อนหลังได้</span></li>
+            <li><input type="checkbox"><span class="txt"><span class="actor">ในฐานะเจ้าของร้าน</span> ฉันอยากให้เวลาที่ยกเลิกแล้วกลับมาว่างให้จองใหม่ได้ เพื่อไม่เสียคิว</span></li>
+            <li><input type="checkbox"><span class="txt"><span class="actor">ในฐานะเจ้าของร้าน</span> ฉันอยากตั้งเวลาทำการและรายการบริการได้ผ่านไฟล์ config เพื่อปรับให้ตรงกับร้าน</span></li>
+          </ul>
+        </div>
+      </details>
+    </section>
+
+    <!-- 5 -->
+    <section id="impl">
+      <details class="card">
+        <summary><span class="num">5.</span> Implementation Decisions</summary>
+        <div class="card-body">
+          <h3>สถาปัตยกรรม</h3>
+          <ul class="plain">
+            <li><span class="tag must">ADR-0001</span> เว็บแอปแทน CLI — reuse ตรรกะหลักของเทมเพลตเป็น backend</li>
+            <li><span class="tag must">ADR-0002</span> Node.js built-in ล้วน (<code>node:http</code>, <code>node:fs</code>) รัน <code>.ts</code> ตรงด้วย Node 24 type-stripping ไม่มี framework/build step</li>
+            <li>เก็บข้อมูลเป็นไฟล์ JSON: <code>appointments.json</code>, <code>services.json</code>, <code>config.json</code></li>
+          </ul>
+
+          <h3>โมดูล (deep modules)</h3>
+          <table>
+            <tr><th>โมดูล</th><th>หน้าที่ / อินเทอร์เฟซ</th></tr>
+            <tr><td><b>time-rules</b><br><span class="tag test">ฟังก์ชันบริสุทธิ์</span></td><td><code>timeToMin</code>, <code>minToTime</code>, <code>conflicts(start,end,appts)</code>, <code>computeAvailability(date,service,appts,config)</code> — ไม่มี IO ทดสอบแยกได้</td></tr>
+            <tr><td><b>appointment-service</b></td><td><code>createAppointment(body)</code> (validate + กฎคิวเดียว + persist), <code>cancel(id)</code></td></tr>
+            <tr><td><b>storage</b></td><td><code>readJSON / writeAppointments</code> — ห่อ file IO</td></tr>
+            <tr><td><b>http-server</b></td><td>routing บางๆ + serve static (ชั้นบาง ไม่มี business logic)</td></tr>
+          </table>
+
+          <h3>โมเดลข้อมูล — นัดหมาย</h3>
+          <table>
+            <tr><th>ฟิลด์</th><th>ชนิด / ตัวอย่าง</th></tr>
+            <tr><td><code>id</code></td><td>string · <code>ap_0001</code></td></tr>
+            <tr><td><code>customerName</code> / <code>customerPhone</code></td><td>string</td></tr>
+            <tr><td><code>serviceId</code></td><td>string · อ้างถึง บริการ</td></tr>
+            <tr><td><code>start</code> / <code>end</code></td><td>string ISO ท้องถิ่น · <code>2026-06-10T14:00</code> (end คำนวณจากระยะเวลาบริการ)</td></tr>
+            <tr><td><code>status</code></td><td><code>"confirmed" | "cancelled"</code></td></tr>
+            <tr><td><code>note</code> / <code>createdAt</code></td><td>string</td></tr>
+          </table>
+
+          <h3>API contract</h3>
+          <table>
+            <tr><th>Endpoint</th><th>หน้าที่</th></tr>
+            <tr><td><code>GET /api/services</code></td><td>รายการบริการ</td></tr>
+            <tr><td><code>GET /api/config</code></td><td>ชื่อร้าน + เวลาทำการ</td></tr>
+            <tr><td><code>GET /api/availability?date&serviceId</code></td><td>คืน <code>{ slots: ["09:00", …] }</code></td></tr>
+            <tr><td><code>POST /api/appointments</code></td><td>สร้างนัด → 201 / 409 (ชนคิว) / 400</td></tr>
+            <tr><td><code>GET /api/admin/appointments?date</code></td><td>รายการนัด (ต้องมี header <code>x-admin-pass</code>)</td></tr>
+            <tr><td><code>POST /api/admin/cancel</code></td><td>ยกเลิกนัด (soft-delete, ต้องมีรหัสผ่าน)</td></tr>
+          </table>
+
+          <h3>กฎสำคัญ</h3>
+          <div class="callout">ทับซ้อนเมื่อ <code>aStart &lt; bEnd && aEnd &gt; bStart</code> เทียบเฉพาะนัด <b>ยืนยันแล้ว</b> · เวลาเก็บเป็น ISO ท้องถิ่นความกว้างคงที่ จึงเทียบแบบ string ได้ตรงตามเวลาจริง · นัดติดกันพอดี (back-to-back) ไม่ถือว่าชน</div>
+        </div>
+      </details>
+    </section>
+
+    <!-- 6 -->
+    <section id="testing">
+      <details class="card">
+        <summary><span class="num">6.</span> Testing Decisions</summary>
+        <div class="card-body">
+          <p><b>เทสที่ดี = ทดสอบพฤติกรรมภายนอก ไม่ใช่รายละเอียดภายใน</b> — ป้อน input แล้วตรวจ output โดยไม่ผูกกับวิธี implement</p>
+          <h3>โมดูลที่จะเทส</h3>
+          <ul class="plain">
+            <li><span class="tag test">หลัก</span> <b>time-rules</b> — ฟังก์ชันบริสุทธิ์ เทสง่ายและคุ้มที่สุด:
+              <ul>
+                <li><code>conflicts</code>: นัดทับกัน → true, นัดติดกันพอดี → false, นัดที่ยกเลิกแล้ว → ไม่นับ</li>
+                <li><code>computeAvailability</code>: ตัดช่องที่ชน, ตัดช่องนอกเวลาทำการ, ตัดเวลาที่ผ่านมาแล้ว, บริการยาวกว่าตัดช่องท้ายที่เลยเวลาปิด</li>
+              </ul>
+            </li>
+            <li><span class="tag test">รอง</span> <b>appointment-service</b> — เทสผ่าน storage จำลอง: สร้างสำเร็จ, ปฏิเสธเมื่อชน (409), ปฏิเสธ input ไม่ถูกต้อง (400)</li>
+          </ul>
+          <h3>Prior art</h3>
+          <p>เทมเพลตต้นทางไม่มีชุดเทส — โมดูล <code>time-rules</code> เป็นชุดเทสแรกของโปรเจกต์ ใช้ <code>node:test</code> + <code>node:assert</code> (มากับ Node ไม่ต้องลง dependency)</p>
+        </div>
+      </details>
+    </section>
+
+    <!-- 7 -->
+    <section id="scope">
+      <details class="card">
+        <summary><span class="num">7.</span> Out of Scope</summary>
+        <div class="card-body">
+          <ul class="plain">
+            <li>❌ บัญชีลูกค้า / ระบบ login ฝั่งลูกค้า (ระบุแค่ชื่อ+เบอร์)</li>
+            <li>❌ พนักงาน/ผู้ให้บริการหลายคน (ร้านคิวเดียว — ดู ADR/CONTEXT)</li>
+            <li>❌ การแจ้งเตือน SMS/อีเมล/LINE</li>
+            <li>❌ การชำระเงิน/มัดจำออนไลน์</li>
+            <li>❌ หลายสาขา / multi-tenant</li>
+            <li>❌ การเลื่อนนัด (reschedule) — ทำได้โดยยกเลิกแล้วจองใหม่</li>
+            <li>❌ ฐานข้อมูลจริง (ใช้ไฟล์ JSON)</li>
+          </ul>
+        </div>
+      </details>
+    </section>
+
+    <!-- 8 -->
+    <section id="notes">
+      <details class="card">
+        <summary><span class="num">8.</span> Further Notes</summary>
+        <div class="card-body">
+          <ul class="plain">
+            <li>📁 เอกสารประกอบ: <code>CONTEXT.md</code> (คำศัพท์), <code>docs/adr/0001</code> (เว็บแทน CLI), <code>docs/adr/0002</code> (สแตกไม่มี dependency)</li>
+            <li>🔐 รหัสผ่านร้านอยู่ใน <code>config.json</code> (<code>adminPasscode</code>) หรือ env <code>ADMIN_PASSCODE</code> — ดีฟอลต์ <code>1234</code> ควรเปลี่ยนก่อนใช้จริง</li>
+            <li>🕑 แสดงวันที่/เวลาแบบไทย (พ.ศ.) ที่หน้าเว็บ แต่เก็บข้อมูลเป็น ISO</li>
+            <li>▶️ รัน: <code>node server.ts</code> แล้วเปิด <code>http://localhost:3000</code> (ร้าน: <code>/admin</code>)</li>
+            <li>⚠️ Node แค่ strip types ไม่ตรวจชนิด — รัน <code>tsc --noEmit</code> แยกถ้าต้องการ type-check</li>
+          </ul>
+        </div>
+      </details>
+    </section>
+  </main>
+</div>
+
+<div class="meta-foot">PRD นี้สังเคราะห์จากเซสชัน grill-with-docs · แอพนัดหมายรับบริการ</div>
+
+<script>
+  // ---- ติ๊ก User Stories + บันทึกลง localStorage ----
+  const KEY = "prd-appt-stories";
+  const boxes = [...document.querySelectorAll("ul.stories input")];
+  boxes.forEach((b, i) => (b.dataset.idx = i));
+  const saved = JSON.parse(localStorage.getItem(KEY) || "[]");
+
+  function apply(box) {
+    box.closest("li").classList.toggle("done", box.checked);
+  }
+  function updateProgress() {
+    const done = boxes.filter((b) => b.checked).length;
+    const pct = boxes.length ? Math.round((done / boxes.length) * 100) : 0;
+    document.getElementById("fill").style.width = pct + "%";
+    document.getElementById("pct").textContent = pct + "%";
+  }
+  function save() {
+    localStorage.setItem(KEY, JSON.stringify(boxes.filter((b) => b.checked).map((b) => +b.dataset.idx)));
+  }
+  boxes.forEach((b) => {
+    if (saved.includes(+b.dataset.idx)) b.checked = true;
+    apply(b);
+    b.addEventListener("change", () => { apply(b); updateProgress(); save(); });
+  });
+  updateProgress();
+  document.getElementById("reset").addEventListener("click", () => {
+    boxes.forEach((b) => { b.checked = false; apply(b); });
+    updateProgress(); save();
+  });
+
+  // ---- TOC: ไฮไลต์ส่วนที่กำลังดู ----
+  const links = [...document.querySelectorAll("nav.toc a")];
+  const map = new Map(links.map((a) => [a.getAttribute("href").slice(1), a]));
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (e.isIntersecting) {
+        links.forEach((l) => l.classList.remove("active"));
+        map.get(e.target.id)?.classList.add("active");
+      }
+    });
+  }, { rootMargin: "-20% 0px -70% 0px" });
+  document.querySelectorAll("section").forEach((s) => obs.observe(s));
+
+  // เปิด details เมื่อคลิกลิงก์ TOC
+  links.forEach((a) => a.addEventListener("click", () => {
+    const d = document.querySelector(a.getAttribute("href") + " details");
+    if (d) d.open = true;
+  }));
+</script>
+</body>
+</html>

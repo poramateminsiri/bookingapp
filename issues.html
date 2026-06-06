@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Issues — แอพนัดหมายรับบริการ</title>
+<style>
+  :root {
+    --bg: #f4f6fb; --card: #fff; --ink: #1f2937; --muted: #6b7280;
+    --line: #e5e7eb; --brand: #2563eb; --brand-dark: #1d4ed8;
+    --ok: #059669; --danger: #dc2626; --amber: #d97706; --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "Sarabun", -apple-system, "Segoe UI", sans-serif; line-height: 1.6;
+  }
+  header.hero {
+    background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+    color: #fff; padding: 38px 20px 46px; text-align: center;
+  }
+  header.hero h1 { margin: 0 0 8px; font-size: 1.8rem; }
+  header.hero .sub { opacity: .9; }
+  .pills { margin-top: 14px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .pill { background: rgba(255,255,255,.18); padding: 5px 13px; border-radius: 999px; font-size: .82rem; }
+
+  .progress-bar { max-width: 980px; margin: -24px auto 0; padding: 0 20px; }
+  .progress-inner {
+    background: var(--card); border-radius: var(--radius); padding: 14px 20px;
+    box-shadow: 0 6px 24px rgba(0,0,0,.08); display: flex; align-items: center; gap: 16px;
+  }
+  .track { flex: 1; height: 10px; background: var(--line); border-radius: 999px; overflow: hidden; }
+  .fill { height: 100%; width: 0; background: var(--ok); transition: width .25s; }
+  .progress-inner b { white-space: nowrap; }
+  .reset { font-size: .8rem; color: var(--muted); background: none; border: none; cursor: pointer; text-decoration: underline; }
+
+  main { max-width: 980px; margin: 0 auto; padding: 34px 20px 80px; }
+
+  .phase { margin-bottom: 34px; }
+  .phase-head {
+    display: flex; align-items: center; gap: 12px; margin: 0 0 14px;
+  }
+  .phase-head h2 { margin: 0; font-size: 1.3rem; }
+  .phase-num {
+    background: var(--brand); color: #fff; width: 34px; height: 34px; flex: none;
+    border-radius: 10px; display: grid; place-items: center; font-weight: 800;
+  }
+  .phase-bar { flex: 1; height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; min-width: 80px; }
+  .phase-bar > i { display: block; height: 100%; width: 0; background: var(--brand); transition: width .25s; }
+  .phase-pct { font-size: .85rem; color: var(--muted); white-space: nowrap; }
+
+  details.issue {
+    background: var(--card); border-radius: var(--radius); margin-bottom: 12px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.05); overflow: hidden; border-left: 4px solid var(--brand);
+  }
+  details.issue.done { border-left-color: var(--ok); }
+  details.issue > summary {
+    list-style: none; cursor: pointer; padding: 15px 18px; display: flex; align-items: center;
+    gap: 10px; user-select: none; flex-wrap: wrap;
+  }
+  details.issue > summary::-webkit-details-marker { display: none; }
+  details.issue > summary::before {
+    content: "▸"; color: var(--brand); transition: transform .2s; font-size: .9em; flex: none;
+  }
+  details.issue[open] > summary::before { transform: rotate(90deg); }
+  .issue-id { font-weight: 800; color: var(--muted); flex: none; }
+  .issue-title { font-weight: 700; flex: 1; min-width: 180px; }
+  .issue-check { font-size: .82rem; color: var(--ok); font-weight: 700; flex: none; }
+
+  .badge { font-size: .72rem; font-weight: 800; padding: 2px 9px; border-radius: 999px; flex: none; }
+  .badge.afk { background: #ecfdf5; color: var(--ok); }
+  .badge.hitl { background: #fffbeb; color: var(--amber); }
+  .badge.dep { background: #f1f5f9; color: var(--muted); }
+  .badge.dep.none { background: #eff6ff; color: var(--brand); }
+
+  .issue-body { padding: 4px 18px 18px; }
+  .issue-body h4 { margin: 14px 0 6px; font-size: .92rem; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+  .issue-body p { font-size: .95rem; margin: 4px 0; }
+  code {
+    background: #eef2ff; color: var(--brand-dark); padding: 1px 6px; border-radius: 6px;
+    font-family: "SF Mono", ui-monospace, monospace; font-size: .86em;
+  }
+  .stories { font-size: .88rem; color: var(--muted); font-style: italic; }
+
+  ul.ac { list-style: none; padding: 0; margin: 6px 0; }
+  ul.ac li {
+    display: flex; gap: 10px; align-items: flex-start; padding: 9px 12px;
+    border: 1px solid var(--line); border-radius: 9px; margin-bottom: 6px; background: #fff;
+  }
+  ul.ac li.checked { background: #f0fdf4; border-color: #bbf7d0; }
+  ul.ac li.checked .ac-txt { text-decoration: line-through; opacity: .6; }
+  ul.ac input { margin-top: 3px; width: 17px; height: 17px; accent-color: var(--ok); cursor: pointer; flex: none; }
+  .ac-txt { flex: 1; font-size: .92rem; }
+  .dep-line { font-size: .9rem; }
+  .meta-foot { text-align: center; color: var(--muted); font-size: .85rem; padding: 24px; }
+  .legend { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 10px; font-size: .85rem; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <h1>🧩 Issues — แอพนัดหมายรับบริการ</h1>
+  <div class="sub">tracer-bullet vertical slices · 9 issues · 4 เฟส</div>
+  <div class="pills">
+    <span class="pill">ทุก slice เป็น AFK</span>
+    <span class="pill">demo/verify ได้เอง</span>
+    <span class="pill">ตัดทะลุ data→API→UI→test</span>
+  </div>
+</header>
+
+<div class="progress-bar">
+  <div class="progress-inner">
+    <b>ความคืบหน้ารวม</b>
+    <div class="track"><div class="fill" id="fill"></div></div>
+    <b id="pct">0%</b>
+    <button class="reset" id="reset">ล้างทั้งหมด</button>
+  </div>
+</div>
+
+<main id="root"></main>
+
+<div class="meta-foot">
+  สร้างจาก grill-with-docs → /to-issues · อ้างอิง <code>issues.md</code>, <code>prd.html</code>, <code>CONTEXT.md</code>
+  <div class="legend">
+    <span><span class="badge afk">AFK</span> ทำเองได้ ไม่ต้องรอคน</span>
+    <span><span class="badge hitl">HITL</span> ต้องมีคนตัดสิน</span>
+    <span>☑️ ติ๊ก acceptance criteria — บันทึกในเบราว์เซอร์</span>
+  </div>
+</div>
+
+<script>
+// ---- ข้อมูล issues (จาก issues.md) ----
+const PHASES = [
+  {
+    title: "แกนการจองของลูกค้า",
+    issues: [
+      { id: 1, title: "โครงเดินได้ + แสดงรายการบริการ", type: "afk", dep: [],
+        stories: "ลูกค้าเห็นรายการบริการพร้อมราคา/ระยะเวลา",
+        what: "เซิร์ฟเวอร์เสิร์ฟหน้าลูกค้าที่โหลดแล้วดึง <code>GET /api/services</code> มาแสดงบริการทั้งหมดพร้อมราคา/ระยะเวลา — เส้นทางบางๆ ที่ครบ data → API → UI เพื่อยืนยันสามชั้นต่อกันติด",
+        ac: ["เปิด <code>http://localhost:3000</code> เห็นหน้าลูกค้าภาษาไทย",
+             "<code>GET /api/services</code> คืนบริการจาก <code>data/services.json</code>",
+             "หน้าเว็บแสดงบริการทุกตัวพร้อมชื่อ/ราคา/ระยะเวลา",
+             "รันด้วย <code>node server.ts</code> โดยไม่ต้องลง dependency"] },
+      { id: 2, title: "แสดงช่องเวลาว่าง", type: "afk", dep: [1],
+        stories: "เลือกวัน, เห็นเฉพาะช่องเวลาว่างที่จองได้จริง, เวลาจบคำนวณอัตโนมัติ",
+        what: "เลือกบริการ+วัน → เรียก <code>GET /api/availability</code> แสดงช่องเวลาว่างเป็นกริด ไล่จากเวลาเปิดทีละช่อง ตัดช่องที่เวลาจบเกินเวลาปิด ตัดช่องอดีต (ถ้าวันนี้) และตัดช่องที่ชนนัดยืนยันแล้ว",
+        ac: ["เลือกบริการ+วันแล้วเห็นช่องเวลาว่างเป็นกริด",
+             "ช่องที่ทำให้เวลาจบเกินเวลาปิด (18:00) ไม่ปรากฏ",
+             "ถ้าเลือกวันนี้ ช่องเวลาที่ผ่านไปแล้วไม่ปรากฏ",
+             "ไม่มีช่องว่างเลย → แสดง \"ไม่มีเวลาว่างในวันนี้\""] },
+      { id: 3, title: "จองนัด + กฎคิวเดียว", type: "afk", dep: [2],
+        stories: "กรอกชื่อ+เบอร์, ใส่หมายเหตุ, เห็นข้อความยืนยัน, ถูกปฏิเสธชัดเจนเมื่อเวลาถูกจองก่อน",
+        what: "กรอกชื่อ+เบอร์+หมายเหตุ ยืนยัน → <code>POST /api/appointments</code> สร้างนัดสถานะ \"ยืนยันแล้ว\" เวลาจบ = เวลาเริ่ม + ระยะเวลาบริการ บังคับกฎคิวเดียว: ปฏิเสธ 409 ถ้าทับนัดยืนยันแล้ว.<br>กฎทับซ้อน (จาก prototype): <code>aStart &lt; bEnd &amp;&amp; aEnd &gt; bStart</code> เฉพาะ <code>status===\"confirmed\"</code> — back-to-back ไม่ชน; เวลาเก็บ ISO ท้องถิ่น <code>YYYY-MM-DDTHH:mm</code> เทียบ string ได้",
+        ac: ["จองสำเร็จบันทึกลง <code>appointments.json</code> สถานะ \"ยืนยันแล้ว\" + แสดงสรุป",
+             "เวลาจบ = เวลาเริ่ม + ระยะเวลาบริการ",
+             "จองเวลาทับนัดยืนยันแล้ว → 409 + ข้อความไทยชัดเจน",
+             "นัดติดกันพอดี (back-to-back) จองได้ ไม่ถือว่าชน",
+             "หลังจองสำเร็จ ช่องเวลานั้นหายจากช่องเวลาว่าง"] },
+    ]
+  },
+  {
+    title: "จัดการร้าน (Admin)",
+    issues: [
+      { id: 4, title: "เข้าระบบร้าน + ดูนัดรายวัน", type: "afk", dep: [1],
+        stories: "เข้าหน้าจัดการด้วยรหัสผ่าน, ดูนัดของวันเรียงตามเวลา, เห็นชื่อ/เบอร์/บริการ/หมายเหตุ",
+        what: "<code>/admin</code> มี gate รหัสผ่าน ผ่านแล้วเลือกวัน → <code>GET /api/admin/appointments?date</code> (header <code>x-admin-pass</code>) แสดงนัดเรียงตามเวลา รหัสผ่านจาก env <code>ADMIN_PASSCODE</code> หรือ <code>config.json</code>",
+        ac: ["<code>/admin</code> ขอรหัสผ่าน — ผิดตอบ 401 ไม่แสดงข้อมูล",
+             "รหัสถูก เห็นรายการนัดของวันที่เลือก เรียงตามเวลา",
+             "แต่ละรายการแสดง เวลา / บริการ / ชื่อ / เบอร์ / หมายเหตุ / สถานะ",
+             "วันไม่มีนัด → \"ยังไม่มีนัดในวันนี้\""] },
+      { id: 5, title: "ยกเลิกนัด (soft-delete)", type: "afk", dep: [3, 4],
+        stories: "ยกเลิกนัดได้, นัดที่ยกเลิกเก็บเป็นประวัติ, เวลาที่ยกเลิกกลับมาว่าง",
+        what: "ปุ่ม \"ยกเลิกนัด\" → <code>POST /api/admin/cancel</code> เปลี่ยนสถานะเป็น \"ยกเลิก\" แบบ soft-delete (ไม่ลบ record) แสดง badge แดง และเพราะกฎทับซ้อนนับเฉพาะนัดยืนยันแล้ว เวลานั้นกลับมาว่างทันที",
+        ac: ["กดยกเลิก → สถานะเป็น \"ยกเลิก\" โดยไม่ลบรายการ",
+             "นัดที่ยกเลิกแสดง badge แดง ยังเห็นในประวัติ",
+             "เวลาของนัดที่ยกเลิกกลับมาจองได้",
+             "ต้องมีรหัสผ่าน — ไม่มี → 401"] },
+    ]
+  },
+  {
+    title: "ตั้งค่า & ความถูกต้องภาษาไทย",
+    issues: [
+      { id: 6, title: "ตั้งค่าบริการ/เวลาทำการผ่าน config", type: "afk", dep: [2],
+        stories: "ตั้งเวลาทำการและรายการบริการได้ผ่านไฟล์ config",
+        what: "ให้รายการบริการ ชื่อร้าน และเวลาทำการ (เปิด/ปิด/ช่วงละกี่นาที) ขับเคลื่อนจาก <code>services.json</code> + <code>config.json</code> ทั้งหมด แก้ไฟล์ต้องสะท้อนทั้ง UI และการคำนวณช่องเวลาว่างโดยไม่แก้โค้ด",
+        ac: ["เพิ่ม/ลบบริการใน <code>services.json</code> → สะท้อนหน้าลูกค้าโดยไม่แตะโค้ด",
+             "แก้เวลาเปิด/ปิด/ช่วงเวลาใน <code>config.json</code> → ช่องเวลาว่างเปลี่ยนตาม",
+             "ชื่อร้านจาก config แสดงบนหน้าเว็บ",
+             "รหัสผ่านร้านอ่านจาก env <code>ADMIN_PASSCODE</code> หรือ <code>config.json</code>"] },
+      { id: 7, title: "แสดงผลไทย พ.ศ. + validation", type: "afk", dep: [3],
+        stories: "เวลาจบคำนวณอัตโนมัติ, ไม่จองเวลาที่ผ่านไปแล้ว, กรอกเบอร์เพื่อติดต่อกลับ",
+        what: "ขัดเกลาความถูกต้อง: แสดงวันที่/เวลาแบบไทย พ.ศ. (<code>toLocaleDateString('th-TH')</code>) แต่เก็บเป็น ISO; ตรวจ input ทั้ง client และ server — เบอร์โทร, ชื่อว่าง, กันจองเวลาอดีต",
+        ac: ["หน้าเว็บแสดงวันที่แบบไทย พ.ศ.",
+             "กรอกเบอร์ผิดรูปแบบ → error ทั้ง client และ server (400)",
+             "ชื่อว่าง → ปฏิเสธการจอง",
+             "จองเวลาที่ผ่านไปแล้ว → ปฏิเสธ (400) แม้ยิงตรงไปที่ API"] },
+    ]
+  },
+  {
+    title: "คุณภาพ & การทดสอบ",
+    issues: [
+      { id: 8, title: "แยกโมดูล time-rules + ชุดเทส", type: "afk", dep: [3],
+        stories: "รองรับทุก story เรื่องช่องเวลาว่าง/กฎคิวเดียวให้เชื่อถือได้",
+        what: "แยกตรรกะเวลาเป็นโมดูลบริสุทธิ์ <b>time-rules</b> (<code>timeToMin</code>, <code>minToTime</code>, <code>conflicts</code>, <code>computeAvailability</code>) ไม่มี file IO แล้วเขียนเทสด้วย <code>node:test</code> + <code>node:assert</code> — ชุดเทสแรกของโปรเจกต์",
+        ac: ["ตรรกะเวลาอยู่ในโมดูลเดียว ไม่มี file IO",
+             "เทส <code>conflicts</code>: ทับ→true, ติดกัน→false, ยกเลิก→ไม่นับ",
+             "เทส <code>computeAvailability</code>: ตัดช่องชน/นอกเวลา/อดีต/บริการยาวตัดท้าย",
+             "<code>node --test</code> ผ่านโดยไม่ต้องลง dependency"] },
+      { id: 9, title: "เทส appointment-service", type: "afk", dep: [5, 8],
+        stories: "รองรับ story การจอง/ยกเลิกให้เชื่อถือได้",
+        what: "เทสโมดูล <b>appointment-service</b> (สร้าง/ยกเลิกนัด) ด้วย storage จำลอง ทดสอบพฤติกรรมภายนอก: สร้างสำเร็จ, ปฏิเสธเมื่อชน (409), ปฏิเสธ input ผิด (400) — ไม่แตะไฟล์จริง",
+        ac: ["สร้างนัดสำเร็จด้วย storage จำลอง",
+             "ปฏิเสธเมื่อชนนัดยืนยันแล้ว (409)",
+             "ปฏิเสธ input ไม่ถูกต้อง (400)",
+             "เทสไม่แตะไฟล์ <code>appointments.json</code> จริง"] },
+    ]
+  }
+];
+
+const KEY = "issues-appt-ac";
+let checked = new Set(JSON.parse(localStorage.getItem(KEY) || "[]"));
+
+const root = document.getElementById("root");
+
+PHASES.forEach((phase, pi) => {
+  const sec = document.createElement("section");
+  sec.className = "phase";
+  sec.dataset.phase = pi;
+  sec.innerHTML = `
+    <div class="phase-head">
+      <div class="phase-num">${pi + 1}</div>
+      <h2>${phase.title}</h2>
+      <div class="phase-bar"><i></i></div>
+      <span class="phase-pct">0%</span>
+    </div>`;
+  phase.issues.forEach((it) => {
+    const det = document.createElement("details");
+    det.className = "issue";
+    det.dataset.id = it.id;
+    const depBadge = it.dep.length
+      ? `<span class="badge dep">⛓ รอ #${it.dep.join(", #")}</span>`
+      : `<span class="badge dep none">⚡ เริ่มได้เลย</span>`;
+    const typeBadge = it.type === "afk"
+      ? `<span class="badge afk">AFK</span>`
+      : `<span class="badge hitl">HITL</span>`;
+    const acItems = it.ac.map((a, ai) => {
+      const key = it.id + "." + ai;
+      const on = checked.has(key);
+      return `<li class="${on ? "checked" : ""}"><input type="checkbox" data-key="${key}" ${on ? "checked" : ""}><span class="ac-txt">${a}</span></li>`;
+    }).join("");
+    det.innerHTML = `
+      <summary>
+        <span class="issue-id">#${it.id}</span>
+        <span class="issue-title">${it.title}</span>
+        ${typeBadge}${depBadge}
+        <span class="issue-check"></span>
+      </summary>
+      <div class="issue-body">
+        <h4>User stories</h4><p class="stories">${it.stories}</p>
+        <h4>สิ่งที่ต้องสร้าง</h4><p>${it.what}</p>
+        <h4>Acceptance criteria</h4>
+        <ul class="ac">${acItems}</ul>
+        <h4>Blocked by</h4>
+        <p class="dep-line">${it.dep.length ? "Slice #" + it.dep.join(", #") : "None — เริ่มได้ทันที"}</p>
+      </div>`;
+    sec.appendChild(det);
+  });
+  root.appendChild(sec);
+});
+
+function save() { localStorage.setItem(KEY, JSON.stringify([...checked])); }
+
+function refresh() {
+  let totalAc = 0, totalDone = 0;
+  PHASES.forEach((phase, pi) => {
+    const sec = root.querySelector(`section[data-phase="${pi}"]`);
+    let pAc = 0, pDone = 0;
+    phase.issues.forEach((it) => {
+      const det = sec.querySelector(`details[data-id="${it.id}"]`);
+      let iDone = 0;
+      it.ac.forEach((_, ai) => { pAc++; totalAc++; if (checked.has(it.id + "." + ai)) { pDone++; iDone++; totalDone++; } });
+      const all = iDone === it.ac.length;
+      det.classList.toggle("done", all);
+      det.querySelector(".issue-check").textContent = `${iDone}/${it.ac.length}${all ? " ✓" : ""}`;
+    });
+    const pct = pAc ? Math.round((pDone / pAc) * 100) : 0;
+    sec.querySelector(".phase-bar > i").style.width = pct + "%";
+    sec.querySelector(".phase-pct").textContent = pct + "%";
+  });
+  const pct = totalAc ? Math.round((totalDone / totalAc) * 100) : 0;
+  document.getElementById("fill").style.width = pct + "%";
+  document.getElementById("pct").textContent = pct + "%";
+}
+
+root.addEventListener("change", (e) => {
+  const cb = e.target;
+  if (!cb.matches("input[type=checkbox]")) return;
+  const key = cb.dataset.key;
+  if (cb.checked) checked.add(key); else checked.delete(key);
+  cb.closest("li").classList.toggle("checked", cb.checked);
+  save(); refresh();
+});
+
+document.getElementById("reset").addEventListener("click", () => {
+  checked.clear(); save();
+  root.querySelectorAll("input[type=checkbox]").forEach((c) => { c.checked = false; c.closest("li").classList.remove("checked"); });
+  refresh();
+});
+
+refresh();
+</script>
+</body>
+</html>

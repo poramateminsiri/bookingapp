@@ -1,0 +1,6 @@
+[
+  { "id": "svc_haircut", "name": "ตัดผม", "durationMinutes": 30, "price": 150 },
+  { "id": "svc_wash", "name": "สระไดร์", "durationMinutes": 45, "price": 200 },
+  { "id": "svc_color", "name": "ทำสีผม", "durationMinutes": 90, "price": 800 },
+  { "id": "svc_massage", "name": "นวดผ่อนคลาย", "durationMinutes": 60, "price": 400 }
+]

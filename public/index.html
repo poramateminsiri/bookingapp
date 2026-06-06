@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>จองนัด</title>
+<link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+<header>
+  <h1 id="shop-name">นัดหมายรับบริการ</h1>
+  <p>เลือกบริการและเวลาที่ต้องการ แล้วจองได้เลย</p>
+</header>
+
+<main>
+  <form id="booking-form" class="card" novalidate>
+    <label>1. เลือกบริการ</label>
+    <div class="services" id="services"><p class="hint">กำลังโหลดบริการ…</p></div>
+
+    <label for="date">2. เลือกวัน</label>
+    <input type="date" id="date" required />
+
+    <label>3. เลือกเวลา</label>
+    <div class="slots" id="slots"><p class="slot none">เลือกบริการและวันก่อน</p></div>
+
+    <label for="name">ชื่อผู้จอง</label>
+    <input type="text" id="name" placeholder="ชื่อ-นามสกุล" required />
+
+    <label for="phone">เบอร์โทร</label>
+    <input type="tel" id="phone" placeholder="08xxxxxxxx" required />
+
+    <label for="note">หมายเหตุ (ถ้ามี)</label>
+    <textarea id="note" placeholder="เช่น ความต้องการพิเศษ"></textarea>
+
+    <button type="submit" id="submit-btn" disabled>ยืนยันการจอง</button>
+    <div class="msg" id="msg"></div>
+  </form>
+</main>
+
+<script src="/app.js"></script>
+</body>
+</html>

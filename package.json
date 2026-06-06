@@ -1,0 +1,14 @@
+{
+  "name": "bookingapp",
+  "version": "0.1.0",
+  "description": "แอพนัดหมายรับบริการ — เว็บแอป Node.js ล้วน ไม่มี dependency",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node server.ts",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}
