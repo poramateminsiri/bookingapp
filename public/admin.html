@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>จัดการร้าน</title>
+<link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+<header>
+  <h1 id="shop-name">จัดการร้าน</h1>
+  <p>สำหรับเจ้าของร้าน — ดูและจัดการนัดหมาย</p>
+</header>
+
+<main>
+  <!-- ประตูรหัสผ่าน -->
+  <form id="gate" class="card">
+    <label for="passcode">รหัสผ่านร้าน</label>
+    <input type="password" id="passcode" placeholder="ใส่รหัสผ่าน" autocomplete="current-password" required />
+    <button type="submit">เข้าสู่ระบบ</button>
+    <div class="msg" id="gate-msg"></div>
+  </form>
+
+  <!-- แผงจัดการ (ซ่อนจนกว่าจะใส่รหัสถูก) -->
+  <section id="panel" class="card" hidden>
+    <div class="row">
+      <div>
+        <label for="date">ดูนัดของวันที่</label>
+        <input type="date" id="date" />
+      </div>
+      <button type="button" id="refresh" style="flex:none;width:auto;margin:0;">รีเฟรช</button>
+    </div>
+    <div id="list" style="margin-top:14px;"></div>
+    <p style="margin-top:18px;text-align:center;">
+      <a href="#" id="logout" class="svc-meta">ออกจากระบบ</a>
+    </p>
+  </section>
+</main>
+
+<script src="/admin.js"></script>
+</body>
+</html>
