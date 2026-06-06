@@ -23,13 +23,42 @@ node server.ts        # หรือ npm start
 ## โครงสร้าง
 
 ```
-server.ts            เซิร์ฟเวอร์ + API (Node built-in ล้วน)
+lib/
+  core.ts            ตรรกะหลัก + ตัวจัดเส้นทาง API (ไม่ผูก transport)
+  store.ts           ชั้นเก็บข้อมูล: FileStore (dev) / KvStore (Upstash, prod)
+server.ts            adapter รันในเครื่อง: http server + เสิร์ฟ static
+api/[...path].ts     adapter Vercel: serverless function
 public/              หน้าเว็บ (HTML/CSS/JS ธรรมดา ไม่มี build step)
 data/
   services.json      รายการบริการ + ระยะเวลา + ราคา
   config.json        ชื่อร้าน เวลาทำการ รหัสผ่าน
-  appointments.json  ข้อมูลนัด
+  appointments.json  ข้อมูลนัด (ใช้ตอน dev เท่านั้น)
 ```
+
+## Deploy บน Vercel
+
+แอปนี้พร้อม deploy บน Vercel แต่ serverless เขียนไฟล์ไม่ได้ จึงต้องมีที่เก็บข้อมูลภายนอก
+(Upstash Redis / Vercel KV) — ดูเหตุผลใน [`docs/adr/0003`](./docs/adr/0003-pluggable-storage-for-serverless-deploy.md)
+
+1. **สร้างที่เก็บข้อมูล** — ใน Vercel Dashboard → Storage → สร้าง **Upstash for Redis** (KV)
+   แล้ว connect เข้า project (Vercel จะใส่ env `KV_REST_API_URL`, `KV_REST_API_TOKEN` ให้อัตโนมัติ)
+2. **Import project** จาก GitHub repo นี้ → Framework Preset เลือก **Other**
+3. **ตั้ง Environment Variables** เพิ่ม:
+   - `ADMIN_PASSCODE` = รหัสผ่านร้าน (อย่าใช้ค่า default `1234`)
+4. **Deploy** — Vercel เสิร์ฟ `public/` เป็น static และ `api/*` เป็น serverless function
+
+หรือผ่าน CLI:
+
+```bash
+npm i -g vercel
+vercel login
+vercel link
+vercel env add ADMIN_PASSCODE     # ใส่รหัสผ่านร้าน
+# เชื่อม Upstash KV ผ่าน dashboard (Storage) เพื่อให้ได้ KV_REST_API_* env
+vercel --prod
+```
+
+> ถ้าไม่มี env `KV_REST_API_*` แอปจะ fallback ไปใช้ไฟล์ JSON (ใช้ได้เฉพาะตอนรันในเครื่อง)
 
 ## สถานะการพัฒนา
 
